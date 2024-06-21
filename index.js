@@ -40,6 +40,7 @@ const verifyToken = async (req, res, next) => {
 
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.ajfjwu7.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
+// const uri = "mongodb://localhost:27017";
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -85,7 +86,7 @@ async function run() {
       const user = req.body
       console.log({ user })
       const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn: '7h',
+        expiresIn: '5h',
       })
       res
         .cookie('token', token, {
@@ -182,14 +183,14 @@ async function run() {
       res.send(result)
     })
     // get all the sold reviews
-    app.get('/manage-reviews', async (req, res) => {
+    app.get('/manage-reviews',verifyToken,verifyAdmin, async (req, res) => {
       const result = await ReviewCollection.find().toArray()
       res.send(result)
     })
 
 
     // delete reviews by admin
-    app.delete('/deletereviews/:id', async (req, res) => {
+    app.delete('/deletereviews/:id',verifyToken,verifyAdmin, async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) }
       const result = await ReviewCollection.deleteOne(query)
@@ -197,7 +198,7 @@ async function run() {
     })
 
     // update buying  status
-    app.patch('/property/status/:id', async (req, res) => {
+    app.patch('/property/status/:id',verifyToken, async (req, res) => {
       const id = req.params.id
       const { transactionId } = req.body
       //change the room avilability status
@@ -248,7 +249,7 @@ async function run() {
     })
 
     // make admin
-    app.patch('/users/admin/:id', async (req, res) => {
+    app.patch('/users/admin/:id',verifyToken,verifyAdmin, async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) }
       const updatedDoc = {
@@ -260,7 +261,7 @@ async function run() {
       res.send(result)
     })
     // make agent
-    app.patch('/users/agent/:id', async (req, res) => {
+    app.patch('/users/agent/:id',verifyToken,verifyAdmin, async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) }
       const updatedDoc = {
@@ -272,7 +273,7 @@ async function run() {
       res.send(result)
     })
     // make fraud
-    app.patch('/users/fraud/:id', async (req, res) => {
+    app.patch('/users/fraud/:id',verifyToken,verifyAdmin, async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
       try {
@@ -304,7 +305,7 @@ async function run() {
 
 
     // delete users
-    app.delete('/users/:id', async (req, res) => {
+    app.delete('/users/:id',verifyToken,verifyAdmin, async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) }
       const result = await usersCollection.deleteOne(query)
@@ -322,7 +323,7 @@ async function run() {
       res.send(result)
     })
     //add to advertisement section
-    app.patch('/advertisement/:id', async (req, res) => {
+    app.patch('/advertisement/:id',verifyToken,verifyAdmin, async (req, res) => {
       const user = req.body
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) }
@@ -381,12 +382,16 @@ async function run() {
     })
 
     //get all property of agent
-    app.get('/manage-property', async (req, res) => {
+    app.get('/manage-property',verifyToken,verifyAdmin, async (req, res) => {
+      const result = await propertyCollection.find().toArray()
+      res.send(result)
+    })
+    app.get('/wishlist-property',verifyToken, async (req, res) => {
       const result = await propertyCollection.find().toArray()
       res.send(result)
     })
     // verify
-    app.patch('/propertys/status/:id', async (req, res) => {
+    app.patch('/propertys/status/:id',verifyToken,verifyAdmin, async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) }
       const updatedDoc = {
@@ -434,7 +439,7 @@ async function run() {
       const result = await ReviewCollection.insertOne(reviewData)
       res.send(result)
     })
-    app.get('/reviews',verifyToken, async (req, res) => {
+    app.get('/reviews', async (req, res) => {
       const result = await ReviewCollection.find().toArray()
       res.send(result)
     })
@@ -497,7 +502,7 @@ async function run() {
 
 
     //reject
-    app.delete('/manage-propertys/:id', async (req, res) => {
+    app.delete('/manage-propertys/:id',verifyToken,verifyAdmin, async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) }
       const result = await propertyCollection.deleteOne(query)
@@ -522,14 +527,13 @@ async function run() {
       const result = await propertyCollection.updateOne(query, updateDoc)
       res.send(result)
     })
+
     //get single property data using _id
     app.get('/property/:id', async (req, res) => {
       const id = req.params.id
       const result = await propertyCollection.findOne({ _id: new ObjectId(id) })
       res.send(result)
     })
-
-
 
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
