@@ -391,6 +391,7 @@ async function run() {
       const result = await propertyCollection.find().toArray()
       res.send(result)
     })
+    //wishlist
     app.get('/wishlist-property', verifyToken, async (req, res) => {
       const result = await propertyCollection.find().toArray()
       res.send(result)
