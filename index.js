@@ -11,7 +11,7 @@ const port = process.env.PORT || 5000;
 
 // middleware 
 const corsOptions = {
-  origin: ['http://localhost:5173', 'http://localhost:5174'],
+  origin: ['http://localhost:5173', 'http://localhost:5174','https://b9-a12-8bd90.web.app'],
   credentials: true,
   optionSuccessStatus: 200,
 }
@@ -39,8 +39,8 @@ const verifyToken = async (req, res, next) => {
 
 
 
- const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.ajfjwu7.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
-//const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.ajfjwu7.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
+//  const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.ajfjwu7.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.ajfjwu7.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 // const uri = "mongodb://localhost:27017";
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -541,7 +541,7 @@ async function run() {
       res.send(result)
     })
 
-    await client.db("admin").command({ ping: 1 });
+    // await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
